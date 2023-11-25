@@ -15,5 +15,11 @@ def event(event_id):
         return render_template('event.html', event=specific_event)
     else:
         return "Event not found", 404
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
