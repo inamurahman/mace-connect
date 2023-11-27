@@ -8,8 +8,8 @@
         <link rel="stylesheet" href="./thcustomtheme.css">
     </head>
     <body style="background-color: #ffffff;">
+        {% include 'navbar.html' %}
         <div class="container" style="background-color: #ffffff;">
-            {% include 'navbar.html' %}
             <div style="height: 80px;"></div>
             <h1 class="text-center">MaceConnect</h1>
             <hr>
@@ -28,6 +28,7 @@
                 </li>
                 {% endfor %}
             </ul> -->
+            
             <div class="container-fluid d-flex flex-wrap" style="background-color: #ffffff;" >
                 {% for event in events %}
                 {% if loop.index0 % 4 == 0 %}
