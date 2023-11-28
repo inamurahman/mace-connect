@@ -3,7 +3,6 @@ import os
 
 ssl_args = {'ssl': {'ca': '/etc/ssl/certs/ca-certificates.crt'}}
 db_string = os.environ.get('DB_CONNECTION_MACEDB')
-print(db_string)
 engine = create_engine(db_string, connect_args=ssl_args)
 
 

@@ -1,0 +1,2 @@
+export DB_CONNECTION_MACEDB="mysql+pymysql://4clr1f12hlzaih1a9m6t:pscale_pw_waSLgHfMNwk812byF92rJxJX3u2M1PD1w76FzZEfxyN@aws.connect.psdb.cloud:3306/maceconnect?charset=utf8mb4"
+export SECRET_KEY="flaksjdflasdfKJN_KFJdskKasdkfas_asfasieuewnvsq"
