@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, text
 import os
 
 ssl_args = {'ssl': {'ca': '/etc/ssl/certs/ca-certificates.crt'}}
-db_string = os.environ.get('DB_CONNECTION_MACEDB')
+db_string = os.getenv('DB_CONNECTION_MACEDB')
 engine = create_engine(db_string, connect_args=ssl_args)
 
 
