@@ -9,7 +9,7 @@ app.secret_key = 'super secret string'
 
 events = [{'id': 1, 'name': 'takshak', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue':'Seminar hall 2'}, {'id': 2, 'name': 'sanskriti', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue':'ootpra'}, {'id': 3, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 4, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 5, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 6, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}]
 
-
+users = load_user_from_db()
 
 # users = {'trial@gmail.com': {'password': 'secret', 'type':'admin'}}
 
@@ -17,7 +17,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'username' not in session:
-            return {{url_for('login')}}
+            return render_template('login.html', error="You need to login first")
         return f(*args, **kwargs)
     return decorated_function
 
@@ -38,19 +38,22 @@ def event(event_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
+        
+        if request.cookies.get('username'): 
+            return redirect(url_for('home'))
         return render_template('login.html', error=None)
     
-    users = load_user_from_db()
+    
 
-    email = request.form['email']
+    username = request.form['username']
     password = request.form['password']
     remember_me = 'remember_me' in request.form
-    if email in users and users[email]['password'] == password:
-        session['username'] = email
+    if username in users and users[username]['password'] == password:
+        session['username'] = username
         if remember_me:
             session.permanent = True
             response = make_response(redirect(url_for('home')))
-            response.set_cookie('username', email, max_age=30*24*60*60)
+            response.set_cookie('username', username, max_age=30*24*60*60)
             return response
 
         return redirect(url_for('home'))
@@ -61,7 +64,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('username', None)
-    return "Logged out"
+    return render_template('login.html', error="You have been logged out")
 
 @app.route('/api/events')
 def api_events():

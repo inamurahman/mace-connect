@@ -12,7 +12,7 @@
 <body style="background-color: #dbe0de; background-image: url('./static/mace.png'); background-size: cover;">
     {% include 'navbar.html' %}
     {% if error %}
-        <div class="alert alert-danger position-absolute bottom-0 end-0" role="alert">
+        <div class="alert alert-warning position-absolute bottom-0 end-0 px-5 mx-3" role="alert">
           {{ error }}
         </div>
         {% endif %}
@@ -29,8 +29,8 @@
         <!-- Login form -->
         <form method="post" action="{{url_for('login')}}">
           <div class="mb-3">
-            <label for="email" class="form-label">Email address</label>
-            <input type="text" name="email" class="form-control" id="email" placeholder="Enter email" required>
+            <label for="email" class="form-label">username</label>
+            <input type="text" name="username" class="form-control" id="email" placeholder="Enter username" required>
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
