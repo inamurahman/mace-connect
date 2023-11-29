@@ -39,3 +39,11 @@ def load_faculty_from_db():
         faculty = result.all()
         faculty = [{'username': user[0], 'userid': user[1], 'firstname': user[2], 'lastname': user[3], 'mobile': user[4], 'department': user[5]} for user in faculty]
     return faculty
+
+def load_events_from_db():
+    with engine.connect() as connection:
+        smtp = text("SELECT * FROM Events")
+        result = connection.execute(smtp)
+        events = result.all()
+        events = [{'eventid': event[0], 'name': event[1], 'date': event[2], 'description': event[3], 'category': event[4], 'organizer': event[5]} for event in events]
+    return events
