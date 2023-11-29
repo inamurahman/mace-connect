@@ -100,9 +100,27 @@
           <a class="nav-link disabled" aria-disabled="true">Clubs</a>
         </li>
       </ul>
-      <form action="{{url_for('logout')}}" method="GET" class="d-flex">
-        <button class="btn btn-outline-danger" type="submit">Logout</button>
-      </form>
+      {% if session['usertype'] == 'organizer' %}
+        <form action="{{url_for('create_event')}}" method="GET" class="d-flex">
+          <button class="btn btn-primary mx-3" type="submit">Create Event</button>
+        </form>
+      {% endif %}
+      
+      {% if session['username'] %}
+        <form action="{{url_for('logout')}}" method="GET" class="d-flex">
+          <button class="btn btn-outline-danger" type="submit">Logout</button>
+        </form>
+      {% else %}
+        {% if request.path == '/signup' %}
+          <form action="{{url_for('login')}}" method="GET" class="d-flex">
+            <button class="btn btn-outline-primary" type="submit">Login</button>
+          </form>
+        {% else %}
+          <form action="{{url_for('signup')}}" method="GET" class="d-flex">
+            <button class="btn btn-outline-success" type="submit">Signup</button>
+          </form>
+        {% endif %}
+      {% endif %}
       <!-- <form class="d-flex" role="search">
         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Search</button>

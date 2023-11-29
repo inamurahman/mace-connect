@@ -11,6 +11,9 @@
     </head>
     <body style="background-color: #ffffff;">
         {% include 'navbar.html' %}
+        {% if userytype=='admin' %}
+            
+        {% endif %}
         {% block content %}
         <div class="container" style="background-color: #ffffff;">
             <div style="height: 80px;"></div>
@@ -50,7 +53,8 @@
                 </li>
                 {% endfor %}
             </ul> -->
-            
+
+            <!--
             <div class="container-fluid d-flex flex-wrap" style="background-color: #ffffff;" >
                 {% for event in events %}
                 {% if loop.index0 % 4 == 0 %}
@@ -58,7 +62,7 @@
                 {% endif %}
                     <div class="col-md-3">
                         <div class="card mb-3" style="background-color: #ffffff;">
-                            <!-- <img src="{{ event.image }}" class="card-img-top" alt="..."> -->
+                            <img src="{{ event.image }}" class="card-img-top" alt="...">
                             <div class="card-body">
                                 <h5 class="card-title text-center">{{ event.name }}</h5>
                                 <p class="card-text">{{ event.description }}.</p>
@@ -66,7 +70,7 @@
                             <ul class="list-group list-group-flush" style="background-color: #ffffff;">
                                 <li class="list-group-item" style="background-color: #ffffff;">{{ event.date }}</li>
                                 <li class="list-group-item" style="background-color: #ffffff;">{{ event.venue }}</li>
-                                <!-- <li class="list-group-item" style="background-color: #ffffff;">A third item</li> -->
+                                <li class="list-group-item" style="background-color: #ffffff;">A third item</li>
                             </ul>
                             <div class="card-body">
                                 <form action="{{ url_for('event', event_id=event.id) }}" method="GET">
@@ -80,6 +84,7 @@
                 {% endif %}
                 {% endfor %}
             </div>
+            -->
             
         </div>
         {% endblock %}
