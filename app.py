@@ -173,7 +173,7 @@ def signup_form(usertype):
         with engine.connect() as connection:
             stmt = text("INSERT INTO Users (Username, Password, UserType, Email) VALUES (:user, :passwd, :type, :mail )").bindparams(user=username, passwd=password, type=usertype, mail=email)
             result = connection.execute(stmt)
-            stmt = text("INSERT INTO Organizer (OrganizerName, Description, AdvisorUsername, Username, UserID) VALUES (:orgname, :orgdesc, :facultyadv, :userid)").bindparams(orgname=orgname, orgdesc=orgdesc, facultyadv=facultyadv, username=username, userid=get_user_id(username))
+            stmt = text("INSERT INTO Organizer (OrganizerName, Description, AdvisorUsername, Username, UserID) VALUES (:orgname, :orgdesc, :facultyadv, :username, :userid)").bindparams(orgname=orgname, orgdesc=orgdesc, facultyadv=facultyadv, username=username, userid=get_user_id(username))
             result = connection.execute(stmt)
         return redirect(url_for('login', error="You have been registered as an organizer. Please login to continue"))
 
