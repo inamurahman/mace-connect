@@ -11,9 +11,7 @@
     </head>
     <body style="background-color: #ffffff;">
         {% include 'navbar.html' %}
-        {% if userytype=='admin' %}
-            
-        {% endif %}
+        
         {% block content %}
         <div class="container" style="background-color: #ffffff;">
             <div style="height: 80px;"></div>
@@ -39,20 +37,30 @@
                 </div>
             </div>
             <hr>
-            {% include 'cards.html' %}
-            <!-- <ul class="list-group">
-                {% for event in events %}
-                <li class="list-group-item d-flex justify-content-between align-items-center card">
-                    <h2>{{ event.title }}</h2>
+            {% if usertype=='admin' %}
+        <div style="height: 80px;"></div>
+        <ul class="list-group">
+            {% for event in events %}
+            <li class="list-group-item justify-content-between card">
+                <div class="col">
+                    <h2>{{ event.eventname }}</h2>
+                    <p>organizer:{{ event.organizername }}</p>
                     <p>Date: {{ event.date }}</p>
-                    <p>Location: {{ event.venue }}</p>
-                    <p>Description: {{ event.description }}</p>
+                    <p>Location: {{ event.location }}</p>
+                
+                </div>
+                <div class="col text-end">
                     <form action="/events/{{ event.id }}" method="GET">
                         <button type="button" class="btn btn-primary">View</button>
                     </form>
-                </li>
-                {% endfor %}
-            </ul> -->
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if usertype!='admin' %}
+            {% include 'cards.html' %}
+        {% endif %}
 
             <!--
             <div class="container-fluid d-flex flex-wrap" style="background-color: #ffffff;" >

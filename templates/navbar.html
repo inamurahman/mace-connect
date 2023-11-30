@@ -107,6 +107,8 @@
       {% endif %}
       
       {% if session['username'] %}
+          <button class="btn btn-outline-primary mx-3 disabled" type="submit">{{session['username']}}</button>
+
         <form action="{{url_for('logout')}}" method="GET" class="d-flex">
           <button class="btn btn-outline-danger" type="submit">Logout</button>
         </form>

@@ -51,7 +51,7 @@ def login_required(f):
 @login_required
 def home():
     events = load_events_from_db()
-    return render_template('home.html', events=events)
+    return render_template('home.html', events=events, usertype=session['usertype'])
 
 @app.route('/events/<int:event_id>')
 @login_required
