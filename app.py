@@ -83,6 +83,8 @@ def login():
     remember_me = 'remember_me' in request.form
 
     user = get_user(username)
+    if user is None:
+        return render_template('login.html', error="Invalid username or password")
 
     if user['password'] == password:
         session['username'] = user['username']
@@ -216,23 +218,27 @@ def upload():
     return 'File saved to database!'
 
 @app.route('/view/image/<int:file_id>')
+@login_required
 def view_image(file_id):
     file_data = UploadedFile.query.filter_by(id=file_id).first()
     return send_file(BytesIO(file_data.image_content), download_name=file_data.image_filename)
 
 
 @app.route('/view/document/<int:file_id>')
+@login_required
 def view_document(file_id):
     file_data = UploadedFile.query.filter_by(id=file_id).first()
     return send_file(BytesIO(file_data.document_content), download_name=file_data.document_filename)
 
 @app.route('/download/image/<int:file_id>')
+@login_required
 def download_image(file_id):
     file_data = UploadedFile.query.filter_by(id=file_id).first()
     return send_file(BytesIO(file_data.image_content), download_name=file_data.image_filename, as_attachment=True)
 
 
 @app.route('/download/document/<int:file_id>')
+@login_required
 def download_document(file_id):
     file_data = UploadedFile.query.filter_by(id=file_id).first()
     return send_file(BytesIO(file_data.document_content), download_name=file_data.document_filename, as_attachment=True)
