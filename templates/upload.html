@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    <h1>File Upload</h1>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <label for="image">Upload Image:</label>
+        <input type="file" name="image" accept=".jpg, .png, .jpeg">
+        <br>
+        <label for="document">Upload Document:</label>
+        <input type="file" name="document" accept=".pdf, .txt, .csv">
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Uploaded Files:</h2>
+    <ul>
+        {% for file in files %}
+            <li>{{ file.image_filename }}, {{ file.document_filename }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

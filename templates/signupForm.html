@@ -58,7 +58,7 @@
             <label class="form-label">Faculty Advisor</label>
             <select class="form-select mb-3" name="faculty" aria-label="Default select example">
                 {% for faculty in faculties %}
-                <option value="{{faculty.id}}">{{faculty.firstname}}{{faculty.lastname}}</option>
+                <option value="{{faculty.username}}">{{faculty.firstname}}{{faculty.lastname}}</option>
                 {% endfor %}
             </select>
             {% else %}

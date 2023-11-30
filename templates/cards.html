@@ -43,7 +43,7 @@
     <symbol id="tools" viewBox="0 0 16 16">
       <path d="M1 0L0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.356 3.356a1 1 0 0 0 1.414 0l1.586-1.586a1 1 0 0 0 0-1.414l-3.356-3.356a1 1 0 0 0-1.023-.242L10.5 9.5l-.96-.96 2.68-2.643A3.005 3.005 0 0 0 16 3c0-.269-.035-.53-.102-.777l-2.14 2.141L12 4l-.364-1.757L13.777.102a3 3 0 0 0-3.675 3.68L7.462 6.46 4.793 3.793a1 1 0 0 1-.293-.707v-.071a1 1 0 0 0-.419-.814L1 0zm9.646 10.646a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM3 11l.471.242.529.026.287.445.445.287.026.529L5 13l-.242.471-.026.529-.445.287-.287.445-.529.026L3 15l-.471-.242L2 14.732l-.287-.445L1.268 14l-.026-.529L1 13l.242-.471.026-.529.445-.287.287-.445.529-.026L3 11z"/>
     </symbol>
-    <symbol id="chevron-right" viewBox="0 0 16 16">
+    <symbol id="chevron-right" viewBox="0 0 16 16"> 
       <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
     </symbol>
     <symbol id="geo-fill" viewBox="0 0 16 16">
@@ -87,14 +87,14 @@
   <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
     {% for event in events %}
     <div class="col">
-    <a href="{{url_for('event',event_id=event.id)}}" class=" link-underline link-underline-opacity-0" >
+    <a href="{{url_for('event',event_id=event.eventid)}}" class=" link-underline link-underline-opacity-0" >
       <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('./static/unsplash-photo-1.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center center;">
         <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
-            <h5>{{ event.organizer }}organizer  </h5>
+            <h5>{{ event.organizername }}</h5>
           <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">{{event.name}}</h3>
           <ul class="d-flex list-unstyled mt-auto">
             <li class="me-auto">
-                <span class="badge text-bg-success">{{event.category}}category</span>
+                <span class="badge text-bg-success">{{event.category}}</span>
             </li>
             <li class="d-flex align-items-center me-3">
               <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#geo-fill"/></svg>
@@ -111,50 +111,4 @@
     </div>
     {% endfor %}
 
-    <div class="col">
-      <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('./static/unsplash-photo-2.jpg');">
-        <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
-          <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Much longer title that wraps to multiple lines</h3>
-          <ul class="d-flex list-unstyled mt-auto">
-            <li class="me-auto">
-              <img src="https://github.com/twbs.png" alt="Bootstrap" width="32" height="32" class="rounded-circle border border-white">
-            </li>
-            <li class="d-flex align-items-center me-3">
-              <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#geo-fill"/></svg>
-              <small>Pakistan</small>
-            </li>
-            <li class="d-flex align-items-center">
-              <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"/></svg>
-              <small>4d</small>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="col">
-      <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('./static/unsplash-photo-3.jpg');">
-        <div class="d-flex flex-column h-100 p-5 pb-3 text-shadow-1">
-          <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Another longer title belongs here</h3>
-          <ul class="d-flex list-unstyled mt-auto">
-            <li class="me-auto">
-              <img src="https://github.com/twbs.png" alt="Bootstrap" width="32" height="32" class="rounded-circle border border-white">
-            </li>
-            <li class="d-flex align-items-center me-3">
-              <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#geo-fill"/></svg>
-              <small>California</small>
-            </li>
-            <li class="d-flex align-items-center">
-              <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"/></svg>
-              <small>5d</small>
-            </li>
-            <li class="d-flex align-items-center ms-auto">
-                <form action="/events/1" method="GET">
-                    <button type="button" class="btn btn-primary">View</button>
-                </form>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
   </div>

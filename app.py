@@ -1,13 +1,41 @@
-from flask import Flask, jsonify, render_template, redirect, url_for, request, session, make_response
+from flask import Flask, jsonify, render_template, redirect, url_for, request, session, make_response, send_file
 from functools import wraps
-from database import engine, load_user_from_db, get_user_id, get_user, load_faculty_from_db
-from sqlalchemy import text
+from database import *
+from sqlalchemy import text, create_engine
+from flask_sqlalchemy import SQLAlchemy
+from io import BytesIO
+
 import os
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_MACEDB')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'connect_args': {'ssl': {'ca': '/etc/ssl/certs/ca-certificates.crt'}}
+}
+db = SQLAlchemy(app)
+
+from flask_sqlalchemy import SQLAlchemy
+
+class UploadedFile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_filename = db.Column(db.String(255), nullable=False)
+    document_filename = db.Column(db.String(255), nullable=False)
+    image_content = db.Column(db.LargeBinary)  # Assuming BLOB type
+    document_content = db.Column(db.LargeBinary)  # Assuming BLOB type
+    upload_date = db.Column(db.TIMESTAMP, server_default=db.func.now(), onupdate=db.func.now())
+
+    def __init__(self, image_filename, document_filename, image_content, document_content):
+        self.image_filename = image_filename
+        self.document_filename = document_filename
+        self.image_content = image_content
+        self.document_content = document_content
+
+# Now you can use this model for database operations
 
 
-events = [{'id': 1, 'name': 'takshak', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue':'Seminar hall 2'}, {'id': 2, 'name': 'sanskriti', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue':'ootpra'}, {'id': 3, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 4, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 5, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 6, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}]
+
+# events = [{'id': 1, 'name': 'takshak', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue':'Seminar hall 2'}, {'id': 2, 'name': 'sanskriti', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue':'ootpra'}, {'id': 3, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 4, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 5, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}, {'id': 6, 'name': 'dj night', 'date': '2019-01-01', 'description':"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor", 'venue': 'basket ball court'}]
 
 # users = {'trial@gmail.com': {'password': 'secret', 'type':'admin'}}
 
@@ -22,12 +50,19 @@ def login_required(f):
 @app.route('/')
 @login_required
 def home():
+    events = load_events_from_db()
     return render_template('home.html', events=events)
 
 @app.route('/events/<int:event_id>')
 @login_required
 def event(event_id):
-    specific_event = next((event for event in events if event['id'] == event_id), None)
+    events = load_events_from_db()
+    specific_event = next(event for event in events if event['eventid'] == event_id)
+    specific_event['email'] = get_organizer_email(specific_event['organizerid'])
+    eventhead = get_eventhead_details(specific_event['head'])
+    specific_event['eventhead'] = eventhead['firstname'] + " " + eventhead['lastname']
+    specific_event['mobile'] = eventhead['mobile']
+    print(specific_event)
     if specific_event:
         return render_template('event.html', event=specific_event)
     else:
@@ -71,6 +106,7 @@ def logout():
 
 @app.route('/api/events')
 def api_events():
+    events = load_events_from_db()
     return jsonify(events)
 
 @app.route('/signup')
@@ -87,7 +123,7 @@ def signup_form(usertype):
     if request.method == 'GET':
         classes = ['S1DS','S1CS','S1ME','S2DS','S2CS','S2ME','S3DS','S3CS','S3ME','S4DS','S4CS','S4ME','S5DS','S5CS','S5ME','S6DS','S6CS','S6ME','S7DS','S7CS','S7ME','S8DS','S8CS','S8ME']
         departments = ['Computer Science', 'Mechanical', 'Electrical', 'Electronics', 'Civil']
-        return render_template('signupForm.html', usertype=usertype,  classlist=classes, deptlist=departments)
+        return render_template('signupForm.html', usertype=usertype, faculties=load_faculty_from_db(),  classlist=classes, deptlist=departments)
     
     users = load_user_from_db()
     if usertype == 'student':
@@ -137,25 +173,70 @@ def signup_form(usertype):
         with engine.connect() as connection:
             stmt = text("INSERT INTO Users (Username, Password, UserType, Email) VALUES (:user, :passwd, :type, :mail )").bindparams(user=username, passwd=password, type=usertype, mail=email)
             result = connection.execute(stmt)
-            stmt = text("INSERT INTO Organizer (OrganizerName, Description, AdvisorUsername, UserID) VALUES (:orgname, :orgdesc, :facultyadv)").bindparams(orgname=orgname, orgdesc=orgdesc, facultyadv=facultyadv)
-        return redirect(url_for('login'))
+            stmt = text("INSERT INTO Organizer (OrganizerName, Description, AdvisorUsername, Username, UserID) VALUES (:orgname, :orgdesc, :facultyadv, :userid)").bindparams(orgname=orgname, orgdesc=orgdesc, facultyadv=facultyadv, username=username, userid=get_user_id(username))
+            result = connection.execute(stmt)
+        return redirect(url_for('login', error="You have been registered as an organizer. Please login to continue"))
 
 @app.route('/createevent', methods=['GET', 'POST'])
+@login_required
 def create_event():
     if request.method == 'GET':
         return render_template('createevent.html', faculties=load_faculty_from_db(),categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
     
     name = request.form['name']
     date = request.form['date']
-    description = request.form['description']
+    description = request.form['desc']
     venue = request.form['venue']
+    eventhead = request.form['eventhead']
     category = request.form['category']
     faculty = request.form['faculty']
-
+    image = request.files['image']
+    time = request.form['time']
+    document = request.files['document']
+    newFile = UploadedFile(image_filename=image.filename, document_filename=document.filename, image_content=image.read(), document_content=document.read())
+    db.session.add(newFile)
+    db.session.commit()
+    file_id = newFile.id
+    if check_username(eventhead) == False:
+        return render_template('createevent.html', faculties=load_faculty_from_db(),categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'], error="Event head not found")
     with engine.connect() as connection:
-        smtp = text("INSERT INTO Events (EventName, Date, Description, Location, Category, OrganizerID, RequestedBy) VALUES (:name, :date, :description, :venue, :category, :organizerid)").bindparams(name=name, date=date, description=description, venue=venue, category=category, organizerid=get_user_id(session['username'], faculty=faculty))
+        smtp = text("INSERT INTO Events (EventName, Date, Description, Location, Category, OrganizerID, RequestedBy, fileid, head, Time) VALUES (:name, :date, :description, :venue, :category,:organizerid,:faculty, :fileid, :head, :time)").bindparams(name=name, date=date, description=description, venue=venue, category=category, organizerid=get_user_id(session['username']), faculty=faculty, fileid=file_id, head=eventhead, time=time)
         result = connection.execute(smtp)
     return redirect(url_for('home'))
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'GET':
+        return render_template('upload.html')
+    image = request.files['image']
+    document = request.files['document']
+    newFile = UploadedFile(image_filename=image.filename, document_filename=document.filename, image_content=image.read(), document_content=document.read())
+    db.session.add(newFile)
+    db.session.commit()
+    return 'File saved to database!'
+
+@app.route('/view/image/<int:file_id>')
+def view_image(file_id):
+    file_data = UploadedFile.query.filter_by(id=file_id).first()
+    return send_file(BytesIO(file_data.image_content), download_name=file_data.image_filename)
+
+
+@app.route('/view/document/<int:file_id>')
+def view_document(file_id):
+    file_data = UploadedFile.query.filter_by(id=file_id).first()
+    return send_file(BytesIO(file_data.document_content), download_name=file_data.document_filename)
+
+@app.route('/download/image/<int:file_id>')
+def download_image(file_id):
+    file_data = UploadedFile.query.filter_by(id=file_id).first()
+    return send_file(BytesIO(file_data.image_content), download_name=file_data.image_filename, as_attachment=True)
+
+
+@app.route('/download/document/<int:file_id>')
+def download_document(file_id):
+    file_data = UploadedFile.query.filter_by(id=file_id).first()
+    return send_file(BytesIO(file_data.document_content), download_name=file_data.document_filename, as_attachment=True)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

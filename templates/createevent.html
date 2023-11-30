@@ -11,37 +11,43 @@
     </head>
     <body style="background-color: #e8e8e8;">
         {% include 'navbar.html' %}
+        <div style="height: 80px;"></div>
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
         <div class="container mt-5">
             <div style="height: 50px;"></div>
             <h1>Create Event</h1>
-            <form method="POST" action="/create_event" enctype="multipart/form-data">
+            <form method="POST" action="{{url_for('create_event')}}" enctype="multipart/form-data">
               <div class="mb-3">
                 <label for="event_name" class="form-label">Event Name</label>
-                <input type="text" class="form-control" id="event_name" name="event_name" required>
+                <input type="text" class="form-control" id="event_name" name="name" required>
               </div>
               <div class="input-group mb-3">
                   <span class="input-group-text" id="basic-addon1">@</span>
-                  <input type="text" class="form-control" placeholder="Username of eventhead" name="eventhead" aria-label="Username" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" placeholder="Username of eventhead" name="eventhead" aria-label="Username" aria-describedby="basic-addon1" required>
               </div>
               <div class="mb-3">
               <label for="orgaddress" class="form-label">Event Description</label>
-              <textarea type="textarea" name="desc" class="form-control" id="orgaddress">
+              <textarea type="textarea" name="desc" class="form-control" id="orgaddress" required>
               </textarea>
               </div>
               <label class="form-label">Faculty Advisor</label>
-              <select class="form-select mb-3" name="faculty" aria-label="Default select example">
+              <select class="form-select mb-3" name="faculty" aria-label="Default select example" required>
                   {% for faculty in faculties %}
                   <option value="{{faculty.username}}">{{faculty.firstname}} {{faculty.lastname}}</option>
                   {% endfor %}
               </select><div class="mb-3">
                 <label for="orgname" class="form-label">Venue</label>
-                <input type="text" name="venue" class="form-control" id="orgname">
+                <input type="text" name="venue" class="form-control" id="orgname" required>
                 </div>
                 <div class="container mx-0 px-0">
                 <div class="row">
                 <div class=" col-6 mb-3">
                     <label for="orgname" class="form-label">Date</label>
-                    <input type="date" name="date" class="form-control" id="orgname">
+                    <input type="date" name="date" class="form-control" id="orgname" required>
                     </div>
                     <div class="col-6 mb-3">
                         <label for="orgname" class="form-label">Time</label>
@@ -50,23 +56,23 @@
                 </div>
                 </div>
               <label for="class" class="form-label">Category</label>
-              <select class="form-select mb-3" name="class" aria-label="Default select example">
+              <select class="form-select mb-3" name="category" aria-label="Default select example" required>
                   {% for category in categorylist %}
                   <option value="{{category}}">{{category}}</option>
                   {% endfor %}
               </select>
               <div class="mb-3">
                   <label for="mobilenumber" class="form-label">Mobile Number</label>
-                  <input type="number" name="mobile" class="form-control" id="mobilenumber">
+                  <input type="number" name="mobile" class="form-control" id="mobilenumber" required>
                   </div>
               
               <div class="mb-3">
                 <label for="event_image" class="form-label">Event Image</label>
-                <input type="file" class="form-control" id="event_image" name="event_image" accept=".png, .jpg, .jpeg" required>
+                <input type="file" class="form-control" id="event_image" name="image" accept=".png, .jpg, .jpeg" required>
               </div>
               <div class="mb-3">
                 <label for="event_image" class="form-label">Document</label>
-                <input type="file" class="form-control" id="event_image" name="event_doc" accept=".png, .jpg, .jpeg" required>
+                <input type="file" class="form-control" id="event_image" name="document" accept=".pdf" required>
               </div>
               <button type="submit" class="btn btn-primary">Create Event</button>
             </form>

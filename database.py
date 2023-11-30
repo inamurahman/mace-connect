@@ -22,6 +22,13 @@ def get_user_id(username):
         user_id = result.first()[0]
     return user_id
 
+def get_username(userid):
+    with engine.connect() as connection:
+        stmt = text("SELECT Username FROM Users WHERE UserID=:userid").bindparams(userid=userid)
+        result = connection.execute(stmt)
+        username = result.first()[0]
+    return username
+
 def get_user(username):
     with engine.connect() as connection:
         stmt = text("SELECT UserID,Username,Password,UserType FROM Users WHERE Username=:username").bindparams(username=username)
@@ -45,5 +52,56 @@ def load_events_from_db():
         smtp = text("SELECT * FROM Events")
         result = connection.execute(smtp)
         events = result.all()
-        events = [{'eventid': event[0], 'name': event[1], 'date': event[2], 'description': event[3], 'category': event[4], 'organizer': event[5]} for event in events]
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13]} for event in events]
     return events
+
+def check_username(username):
+    with engine.connect() as connection:
+        stmt = text("SELECT Username FROM Users WHERE Username=:username").bindparams(username=username)
+        result = connection.execute(stmt)
+        username = result.first()
+        if username is None:
+            return False
+        else:
+            return True
+        
+def get_organizer_name(organizerid):
+    with engine.connect() as connection:
+        stmt = text("SELECT OrganizerName from Organizer WHERE UserID=:organizerid").bindparams(organizerid=organizerid)
+        result = connection.execute(stmt)
+        organizer = result.first()
+        if organizer is None:
+            return ""
+        organizer = organizer[0]
+    return organizer
+
+def get_organizer_email(organizerid):
+    with engine.connect() as connection:
+        stmt = text("SELECT Email from Users WHERE UserID=:organizerid").bindparams(organizerid=organizerid)
+        result = connection.execute(stmt)
+        organizer = result.first()
+        if organizer is None:
+            return ""
+        organizer = organizer[0]
+    return organizer
+
+def get_organizer_mobile(organizerid):
+    with engine.connect() as connection:
+        stmt = text("SELECT Mobile from UserDetails WHERE UserID=:organizerid").bindparams(organizerid=organizerid)
+        result = connection.execute(stmt)
+        organizer = result.first()
+        if organizer is None:
+            return ""
+        organizer = organizer[0]
+    return organizer
+
+def get_eventhead_details(username):
+    userid = get_user_id(username)
+    with engine.connect() as connection:
+        stmt = text("SELECT UserDetails.UserID, UserDetails.FirstName, UserDetails.LastName, UserDetails.Mobile FROM UserDetails JOIN Users ON UserDetails.UserID = Users.UserID WHERE Users.UserID = :userid;").bindparams(userid=userid)
+        result = connection.execute(stmt)
+        eventhead = result.first()
+        if eventhead is None:
+            return None
+        eventhead = {'userid': eventhead[0], 'firstname': eventhead[1], 'lastname': eventhead[2], 'mobile': eventhead[3]}
+    return eventhead
