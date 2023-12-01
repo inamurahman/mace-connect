@@ -39,7 +39,7 @@
             <button type="submit" class="btn btn-primary">Download Document</button>
         </form>
        {% if event.status=="Pending" %}
-{% if event.currentstage==session['usertype']}
+{% if event.currentstage==session['usertype'] %}
 
         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
             Approve
@@ -120,7 +120,7 @@
             <button type="submit" class="btn btn-primary">Download Document</button>
         </form>
         {% if event.status=="Pending" %}
-{% if event.currentstage==session['usertype']}
+{% if event.currentstage==session['usertype'] %}
 
         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
             Approve
