@@ -47,12 +47,37 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
+    if request.method == 'POST':
+        if session['usertype'] == 'admin':
+            category = request.form['category']
+            if category == 'All':
+                events = load_events_from_db()
+                return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
+            events = load_events_from_db()
+            events = [event for event in events if event['category'] == request.form['category']]
+            return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
+        if session['usertype'] == 'organizer':
+            category = request.form['category']
+            if category == 'All':
+                events = load_events_from_db()
+                return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
+            events = load_events_from_db()
+            events = [event for event in events if event['category'] == request.form['category']]
+            return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
+        if session['usertype'] == 'faculty':
+            category = request.form['category']
+            if category == 'All':
+                events = load_events_from_db()
+                return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
+            events = load_events_from_db()
+            events = [event for event in events if event['category'] == request.form['category']]
+            return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
+        return "You are not authorized to perform this action", 403
     events = load_events_from_db()
-    return render_template('home.html', events=events, usertype=session['usertype'])
-
+    return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],category_list=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
 @app.route('/events/<int:event_id>')
 @login_required
 def event(event_id):
@@ -64,9 +89,60 @@ def event(event_id):
     specific_event['mobile'] = eventhead['mobile']
     print(specific_event)
     if specific_event:
-        return render_template('event.html', event=specific_event)
+        return render_template('event.html', event=specific_event,remarkFaculty=get_remark_faculty(event_id))
     else:
         return "Event not found", 404
+    
+@app.route('/events/<int:event_id>/approve', methods=[ 'POST'])
+@login_required
+def approve_event(event_id):
+    if request.method == 'POST':
+        if session['usertype'] == 'faculty':
+            remark = request.form['remarks']
+            approverid = get_user_id(session['username'])
+            with engine.connect() as connection:
+                stmt = text("insert into Approval (ApprovalStatus, ApproverID, Remarks, EventID) values ('Approved', :approver, :remark, :eventid)").bindparams(approver=approverid, remark=remark, eventid=event_id)
+                result = connection.execute(stmt)
+                stmt = text("UPDATE Events SET CurrentStage='admin' WHERE EventID=:eventid").bindparams(eventid=event_id)
+                result = connection.execute(stmt)
+            return redirect(url_for('home'))
+        
+        if session['usertype'] != 'admin':
+            return "You are not authorized to perform this action", 403
+        
+        remark = request.form['remarks']
+        with engine.connect() as connection:
+            stmt = text("UPDATE Events SET ApprovalStatus='approved', Remarks=:remark WHERE EventID=:eventid").bindparams(remark=remark, eventid=event_id)
+            result = connection.execute(stmt)
+            stmt = text("UPDATE Events SET CurrentStage='final' WHERE EventID=:eventid").bindparams(eventid=event_id)
+        return redirect(url_for('home'))
+    return "Invalid request", 404
+
+@app.route('/events/<int:event_id>/reject', methods=[ 'POST'])
+@login_required
+def reject_event(event_id):
+    if session['usertype'] == 'faculty':
+        remark = request.form['remarks']
+        approverid = get_user_id(session['username'])
+
+        with engine.connect() as connection:
+            stmt = text("insert into Approval (ApprovalStatus, ApproverID, Remarks, EventID) values ('Rejected', :approver, :remark, :eventid)").bindparams(approver=approverid, remark=remark, eventid=event_id)
+            result = connection.execute(stmt)
+            stmt = text("UPDATE Events SET CurrentStage='faculty' WHERE EventID=:eventid").bindparams(eventid=event_id)
+            result = connection.execute(stmt)
+        return redirect(url_for('home'))
+    
+    if session['usertype'] != 'admin':
+        return "You are not authorized to perform this action", 403
+
+
+    remark = request.form['remarks']
+    with engine.connect() as connection:
+        stmt = text("UPDATE Events SET ApprovalStatus='Rejected', Remarks=:remark WHERE EventID=:eventid").bindparams(remark=remark, eventid=event_id)
+        result = connection.execute(stmt)
+        stmt = text("UPDATE Events SET CurrentStage='organizer' WHERE EventID=:eventid").bindparams(eventid=event_id)
+        result = connection.execute(stmt)
+    return redirect(url_for('home'))                 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -93,12 +169,14 @@ def login():
             session.permanent = True
             response = make_response(redirect(url_for('home')))
             response.set_cookie('username', username, max_age=30*24*60*60)
+            response.set_cookie('usertype', user['usertype'], max_age=30*24*60*60)
             return response
 
         return redirect(url_for('home'))
     
         
     return render_template('login.html', error="Invalid username or password")
+
 
 @app.route('/logout')
 def logout():
@@ -115,6 +193,43 @@ def api_events():
 def signup():
     return render_template('signup.html')
     
+
+@app.route('/requests', methods=['GET', 'POST'])
+@login_required
+def requests():
+    if request.method == 'POST':
+        if session['usertype'] == 'admin':
+            events = filter_events_by_status(request.form['status'])
+            events = [event for event in events if event['currentstage'] == 'admin']
+            return render_template('requests.html', events=events)
+        if session['usertype'] == 'organizer':
+            events = filter_events_by_status(request.form['status'])
+            events = [event for event in events if event['organizerid'] == get_user_id(session['username'])]
+            return render_template('requests.html', events=events)
+        if session['usertype'] == 'faculty':
+            events = filter_events_by_status(request.form['status'])
+            events = [event for event in events if event['faculty'] == session['username']]
+            return render_template('requests.html', events=events)
+        return "You are not authorized to perform this action", 403
+    
+    if session['usertype'] == 'faculty':
+        events = load_events_from_db()
+        events = [event for event in events if event['faculty'] == session['username']]
+        return render_template('requests.html', events=events)
+    if session['usertype'] == 'admin':
+        events = load_events_from_db()
+        events = [event for event in events if event['currentstage'] == 'admin']
+        return render_template('requests.html', events=events)
+    if session['usertype'] == 'organizer':
+        events = load_events_from_db()
+        events = [event for event in events if event['organizerid'] == get_user_id(session['username'])]
+        return render_template('requests.html', events=events)
+    return "You are not authorized to perform this action", 403
+
+@app.route('/clubs')
+@login_required
+def clubs():
+    return render_template('clubs.html', clubs=load_organizers_from_db())
     
 
 @app.route('/signup/<string:usertype>', methods=['GET', 'POST'])
@@ -202,7 +317,7 @@ def create_event():
     if check_username(eventhead) == False:
         return render_template('createevent.html', faculties=load_faculty_from_db(),categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'], error="Event head not found")
     with engine.connect() as connection:
-        smtp = text("INSERT INTO Events (EventName, Date, Description, Location, Category, OrganizerID, RequestedBy, fileid, head, Time) VALUES (:name, :date, :description, :venue, :category,:organizerid,:faculty, :fileid, :head, :time)").bindparams(name=name, date=date, description=description, venue=venue, category=category, organizerid=get_user_id(session['username']), faculty=faculty, fileid=file_id, head=eventhead, time=time)
+        smtp = text("INSERT INTO Events (EventName, Date, Description, Location, Category, OrganizerID, RequestedBy, fileid, head, Time, CurrentStage) VALUES (:name, :date, :description, :venue, :category,:organizerid,:faculty, :fileid, :head, :time, 'faculty')").bindparams(name=name, date=date, description=description, venue=venue, category=category, organizerid=get_user_id(session['username']), faculty=faculty, fileid=file_id, head=eventhead, time=time)
         result = connection.execute(smtp)
     return redirect(url_for('home'))
 

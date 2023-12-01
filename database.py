@@ -52,7 +52,7 @@ def load_events_from_db():
         smtp = text("SELECT * FROM Events")
         result = connection.execute(smtp)
         events = result.all()
-        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13]} for event in events]
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13], 'admremark':event[14],'orgusername':get_username(event[6])} for event in events]
     return events
 
 def check_username(username):
@@ -105,3 +105,94 @@ def get_eventhead_details(username):
             return None
         eventhead = {'userid': eventhead[0], 'firstname': eventhead[1], 'lastname': eventhead[2], 'mobile': eventhead[3]}
     return eventhead
+
+def filter_events_by_status(status):
+    if status == "All":
+        return load_events_from_db()
+    with engine.connect() as connection:
+        stmt = text("SELECT * FROM Events WHERE ApprovalStatus=:status").bindparams(status=status)
+        result = connection.execute(stmt)
+        events = result.all()
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13],'orgusername':get_username(event[6])} for event in events]
+    return events
+
+def filter_events_by_category(category):
+    if category == "All":
+        return load_events_from_db()
+    with engine.connect() as connection:
+        stmt = text("SELECT * FROM Events WHERE Category=:category").bindparams(category=category)
+        result = connection.execute(stmt)
+        events = result.all()
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13]} for event in events]
+    return events
+
+def filter_events_by_faculty(faculty):
+    with engine.connect() as connection:
+        stmt = text("SELECT * FROM Events WHERE Faculty=:faculty").bindparams(faculty=faculty)
+        result = connection.execute(stmt)
+        events = result.all()
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13]} for event in events]
+    return events
+
+def filter_events_by_date(date):
+    with engine.connect() as connection:
+        stmt = text("SELECT * FROM Events WHERE Date=:date").bindparams(date=date)
+        result = connection.execute(stmt)
+        events = result.all()
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13]} for event in events]
+    return events
+
+def filter_events_by_organizer(organizerid):
+    with engine.connect() as connection:
+        stmt = text("SELECT * FROM Events WHERE OrganizerID=:organizerid").bindparams(organizerid=organizerid)
+        result = connection.execute(stmt)
+        events = result.all()
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13]} for event in events]
+    return events
+
+def filter_events_by_admin():
+    with engine.connect() as connection:
+        stmt = text("SELECT * FROM Events WHERE CurrentStage='admin'")
+        result = connection.execute(stmt)
+        events = result.all()
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13]} for event in events]
+    return events
+
+def get_remark_admin(eventid):
+    with engine.connect() as connection:
+        stmt = text("SELECT Remarks FROM Events WHERE EventID=:eventid").bindparams(eventid=eventid)
+        result = connection.execute(stmt)
+        remarks = result.first()
+        if remarks is None:
+            return ""
+        remarks = remarks[0]
+    return remarks
+
+def get_remark_faculty(eventid):
+    with engine.connect() as connection:
+        stmt = text("SELECT Remarks FROM Approval WHERE EventID=:eventid").bindparams(eventid=eventid)
+        result = connection.execute(stmt)
+        remarks = result.first()
+        if remarks is None:
+            return ""
+        remarks = remarks[0]
+    return remarks
+
+def load_organizers_from_db():
+    with engine.connect() as connection:
+        smtp = text("SELECT * FROM Organizer")
+        result = connection.execute(smtp)
+        organizers = result.all()
+        organizers = [{'organizerid': organizer[0], 'organizername': organizer[1], 'email': get_organizer_email(organizer[6]), 'description':organizer[4],'username':organizer[2], 'userid': organizer[6]} for organizer in organizers]
+    return organizers
+
+def get_status(eventid):
+    with engine.connect() as connection:
+        stmt = text("SELECT ApprovalStatus FROM Events WHERE EventID=:eventid").bindparams(eventid=eventid)
+        result = connection.execute(stmt)
+        status = result.first()
+        if status is None:
+            return ""
+        status = status[0]
+        
+    return status

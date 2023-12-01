@@ -1,0 +1,12 @@
+
+    <div class="container">
+        <h1>Event Approval</h1>
+        <form action="{{ url_for('approve_event',event_id=event.eventid) }}" method="POST">
+            <div class="mb-3">
+                <label for="remarks" class="form-label">Remarks:</label>
+                <textarea class="form-control" id="remarks" name="remarks" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Approve</button>
+        </form>
+    </div>
+

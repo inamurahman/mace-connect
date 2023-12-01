@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>MaceConnect</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="./thcustomtheme.css">
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    </head>
+    <body style="background-color: #ffffff;">
+        {% include 'navbar.html' %}
+        
+        {% block content %}
+        <div class="container" style="background-color: #ffffff;">
+            <div style="height: 80px;"></div>
+            <h1 class="text-center">MaceConnect</h1>
+            <hr>
+            <div class="container">
+                <div class="row justify-content-between">
+                    <div class="col">
+                        <h2>Events</h2>
+                    </div>
+                    <div class="col text-end">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Status    
+                            </button>
+                            <ul class="dropdown-menu">
+                            <form action="{{url_for('requests')}}" method="POST">
+                                <li><button class="dropdown-item" type="submit" name="status" value="All">All</button></li>
+                                <li><button class="dropdown-item" type="submit" name="status" value="Pending">Pending</button></li>
+                                <li><button class="dropdown-item" type="submit" name="status" value="Approved">Approved</button></li>
+                                <li><button class="dropdown-item" type="submit" name="status" value="Rejected">Rejected</button></li>
+                            </form>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+        <ul class="list-group">
+            {% for event in events %}
+            <li class="list-group-item justify-content-between card">
+                <div class="container justify-content-between">
+                    <div class="row">
+                    <div class="col-6">
+                        <h2>{{ event.eventname }}</h2>
+                        <p>organizer:{{ event.organizername }}</p>
+                        <p>Date: {{ event.date }}</p>
+                        <p>Location: {{ event.location }}</p>
+                    
+                    </div>
+                    <div class="col-3 align-self-center text-end">
+                        {% if event.status=='Pending' %}
+                        <span class="badge text-bg-warning">Pending</span>
+                        {% endif %}
+                        {% if event.status=='Approved' %}
+                        <span class="badge text-bg-success">Approved</span>button
+                        {% endif %}
+                        {% if event.status=='Rejected' %}
+                        <span class="badge text-bg-danger">Rejected</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-3 align-self-center text-end">
+                        <form action="{{url_for('event',event_id=event.eventid)}}" method="GET">
+                            <button type="submit" class="btn btn-primary">View</button>
+                        </form>
+                    </div>
+                </div>
+                </div>    
+            </li>
+            {% endfor %}
+        </ul>
+        </div>
+        {% endblock %}
+    </body>
+</html>
