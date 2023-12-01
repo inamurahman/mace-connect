@@ -51,39 +51,26 @@ def login_required(f):
 @login_required
 def home():
     if request.method == 'POST':
+        events = get_approved_events()
         if session['usertype'] == 'admin':
             category = request.form['category']
             if category == 'All':
-                events = load_events_from_db()
-                events = [event for event in events if event['status'] == 'Approved']
                 return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-            events = load_events_from_db()
-            events = [event for event in events if event['status'] == 'Approved']
-            events = [event for event in events if event['category'] == request.form['category']]
             return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
         if session['usertype'] == 'organizer':
             category = request.form['category']
             if category == 'All':
-                events = load_events_from_db()
-                events = [event for event in events if event['status'] == 'Approved']
                 return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-            events = load_events_from_db()
-            events = [event for event in events if event['status'] == 'Approved']
             events = [event for event in events if event['category'] == request.form['category']]
             return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
         if session['usertype'] == 'faculty':
             category = request.form['category']
             if category == 'All':
-                events = load_events_from_db()
-                events = [event for event in events if event['status'] == 'Approved']
                 return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-            events = load_events_from_db()
-            events = [event for event in events if event['status'] == 'Approved']
             events = [event for event in events if event['category'] == request.form['category']]
             return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
         return "You are not authorized to perform this action", 403
-    events = load_events_from_db()
-    events = [event for event in events if event['status'] == 'Approved']
+    events = get_approved_events()
     return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
 @app.route('/events/<int:event_id>')
 @login_required

@@ -196,3 +196,11 @@ def get_status(eventid):
         status = status[0]
         
     return status
+
+def get_approved_events():
+    with engine.connect() as connection:
+        stmt = text("SELECT * FROM Events WHERE ApprovalStatus='approved'")
+        result = connection.execute(stmt)
+        events = result.all()
+        events = [{'eventid': event[0], 'eventname': event[1], 'description':event[2],'date':event[3], 'time':event[4], 'location':event[5], 'organizerid':event[6],'organizername':get_organizer_name(event[6]), 'faculty':event[7], 'status':event[8], 'currentstage':event[10], 'category':event[11], 'fileid':event[12],'head':event[13],'orgusername':get_username(event[6])} for event in events]
+    return events
