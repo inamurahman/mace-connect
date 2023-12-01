@@ -52,24 +52,11 @@ def login_required(f):
 def home():
     if request.method == 'POST':
         events = get_approved_events()
-        if session['usertype'] == 'admin':
-            category = request.form['category']
-            if category == 'All':
-                return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
+        category = request.form['category']
+        if category == 'All':
             return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-        if session['usertype'] == 'organizer':
-            category = request.form['category']
-            if category == 'All':
-                return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-            events = [event for event in events if event['category'] == request.form['category']]
-            return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-        if session['usertype'] == 'faculty':
-            category = request.form['category']
-            if category == 'All':
-                return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-            events = [event for event in events if event['category'] == request.form['category']]
-            return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
-        return "You are not authorized to perform this action", 403
+        events = [event for event in events if event['category'] == category]
+        return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
     events = get_approved_events()
     return render_template('home.html', events=events, usertype=session['usertype'], username=session['username'],categorylist=['Technical', 'Cultural', 'Sports', 'Workshop', 'Seminar', 'Other'])
 @app.route('/events/<int:event_id>')
@@ -122,7 +109,7 @@ def reject_event(event_id):
         with engine.connect() as connection:
             stmt = text("insert into Approval (ApprovalStatus, ApproverID, Remarks, EventID) values ('Rejected', :approver, :remark, :eventid)").bindparams(approver=approverid, remark=remark, eventid=event_id)
             result = connection.execute(stmt)
-            stmt = text("UPDATE Events SET CurrentStage='faculty' WHERE EventID=:eventid").bindparams(eventid=event_id)
+            stmt = text("UPDATE Events SET CurrentStage='faculty',ApprovalStatus='Rejected' WHERE EventID=:eventid").bindparams(eventid=event_id)
             result = connection.execute(stmt)
         return redirect(url_for('home'))
     
@@ -134,7 +121,7 @@ def reject_event(event_id):
     with engine.connect() as connection:
         stmt = text("UPDATE Events SET ApprovalStatus='Rejected', Remarks=:remark WHERE EventID=:eventid").bindparams(remark=remark, eventid=event_id)
         result = connection.execute(stmt)
-        stmt = text("UPDATE Events SET CurrentStage='organizer' WHERE EventID=:eventid").bindparams(eventid=event_id)
+        stmt = text("UPDATE Events SET CurrentStage='admin' WHERE EventID=:eventid").bindparams(eventid=event_id)
         result = connection.execute(stmt)
     return redirect(url_for('home'))                 
 
