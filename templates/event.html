@@ -38,15 +38,19 @@
         <form action="{{url_for('view_document',file_id=event.fileid)}}" method="GET">
             <button type="submit" class="btn btn-primary">Download Document</button>
         </form>
-        {% if event.status!="Approved" %}
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-        Approve
-    </button>
-    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
-        Reject
-    </button>
-    </div>
-    {% endif %}
+       {% if event.status=="Pending" %}
+{% if event.currentstage==session['usertype']}
+
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            Approve
+        </button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+            Reject
+        </button>
+        </div>
+
+{% endif %}
+        {% endif %}
     </div>
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -115,7 +119,9 @@
         <form action="{{url_for('view_document',file_id=event.fileid)}}" method="GET">
             <button type="submit" class="btn btn-primary">Download Document</button>
         </form>
-        {% if event.status!="Approved" %}
+        {% if event.status=="Pending" %}
+{% if event.currentstage==session['usertype']}
+
         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
             Approve
         </button>
@@ -123,6 +129,8 @@
             Reject
         </button>
         </div>
+
+{% endif %}
         {% endif %}
     
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
