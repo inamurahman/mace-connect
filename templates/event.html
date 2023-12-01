@@ -63,7 +63,6 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Understood</button>
             </div>
           </div>
         </div>
@@ -100,12 +99,8 @@
                 <p>Current stage: {{event.currentstage}}</p>
             </div>
             <div class="col">
-                {% if remarkAdmin != '' %}
-                <p>Remarks from Admin: {{event.remarkAdmin}}</p>
-                {% endif %}
-                {% if remarkFaculty!='' %}
-                <p>Remarks from Faculty: {{event.remarkFaculty}}</p>
-                {% endif %}
+                <p>Remarks from Admin: {{event.admremark}}</p>
+                <p>Remarks from Faculty: {{remarkFaculty}}</p>
             </div>
         </div>
     </div>
@@ -179,13 +174,15 @@
                         <p>Current Status: {{event.status}}</p>
                         <p>Current stage: {{event.currentstage}}</p>
                     </div>
-                    <div class="col">
-                        {% if remarkAdmin != '' %}
-                        <p>Remarks from Admin: {{event.remarkAdmin}}</p>
-                        {% endif %}
-                        {% if remarkFaculty!='' %}
-                        <p>Remarks from Faculty: {{event.remarkFaculty}}</p>
-                        {% endif %}
+                    <div class="row">
+                        <div class="col">
+                            <p>Current Status: {{event.status}}</p>
+                            <p>Current stage: {{event.currentstage}}</p>
+                        </div>
+                        <div class="col">
+                            <p>Remarks from Admin: {{event.admremark}}</p>
+                            <p>Remarks from Faculty: {{remarkFaculty}}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,13 +195,15 @@
                 <p>Current Status: {{event.status}}</p>
                 <p>Current stage: {{event.currentstage}}</p>
             </div>
-            <div class="col">
-                {% if remarkAdmin != '' %}
-                <p>Remarks from Admin: {{event.remarkAdmin}}</p>
-                {% endif %}
-                {% if remarkFaculty!='' %}
-                <p>Remarks from Faculty: {{event.remarkFaculty}}</p>
-                {% endif %}
+            <div class="row">
+                <div class="col">
+                    <p>Current Status: {{event.status}}</p>
+                    <p>Current stage: {{event.currentstage}}</p>
+                </div>
+                <div class="col">
+                    <p>Remarks from Admin: {{event.admremark}}</p>
+                    <p>Remarks from Faculty: {{remarkFaculty}}</p>
+                </div>
             </div>
         </div>
     </div>
